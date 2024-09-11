@@ -21,14 +21,18 @@ fi
 
 # 定时备份 Docker 容器中 Nginx 配置文件
 backup_nginx_conf() {
-    # 通过 docker cp 命令从容器中提取 Nginx 配置目录并进行备份
+    # 复制 Nginx 配置文件到备份目录
+    echo "正在复制 Nginx 配置文件到 $BACKUP_DIR/nginx_config..."
     cp -r "${CONF_NAME}" "$BACKUP_DIR/nginx_config"
-    
-    if [ $? -ne 0 ]; then
-        echo "从容器中复制 Nginx 配置失败，请检查容器是否正常运行。"
-        exit 1
-    fi
 
+    # 检查 cp 命令是否成功
+    if [ $? -ne 0 ]; then
+        echo "从目录中复制 Nginx 配置失败，请检查目录权限。"
+        exit 1
+    else
+        echo "Nginx 配置文件成功备份至 $BACKUP_DIR/nginx_config。"
+    fi
+    
     # 压缩并备份配置文件
     tar -czf "$BACKUP_FILE" -C "$BACKUP_DIR" nginx_config
     if [ $? -ne 0 ]; then
